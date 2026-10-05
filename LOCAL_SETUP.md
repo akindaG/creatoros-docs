@@ -7,129 +7,202 @@ Install:
 - Git
 - Node.js and npm
 - Python 3.12
-- PostgreSQL or a Supabase PostgreSQL connection
-- Ollama for local Qwen 3 generation
+- PostgreSQL, or access to a Supabase PostgreSQL database
+- Optional: Ollama for local Qwen 3 inference
+- Optional: Meta developer credentials for OAuth and live publishing
+- Optional: Gemini API key for hosted AI inference
 
 ## 1. Clone the repositories
 
-```bash
-cd ~/Documents
+~~~bash
 git clone https://github.com/akindaG/creatoros-api.git
 git clone https://github.com/akindaG/creatoros-web.git
-```
+~~~
 
 ## 2. Backend setup
 
-```bash
-cd ~/Documents/creatoros-api
+~~~bash
+cd creatoros-api
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-```
+~~~
 
 Set at minimum:
 
-```env
+~~~env
+APP_ENV=development
+DEBUG=true
 DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST:PORT/DATABASE
 JWT_SECRET_KEY=replace-with-a-long-random-secret
 FRONTEND_ORIGINS=http://localhost:3000
-SOCIAL_PUBLISH_MODE=simulate
+FRONTEND_URL=http://localhost:3000
+AI_PROVIDER=gemini
 AI_FALLBACK_ENABLED=true
-```
+SOCIAL_PUBLISH_MODE=simulate
+~~~
 
-Optional production-like values:
+### Hosted Gemini option
 
-```env
+~~~env
+AI_PROVIDER=gemini
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.5-flash-lite
+AI_FALLBACK_ENABLED=true
+~~~
+
+### Local Ollama and Qwen option
+
+~~~env
+AI_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen3
+OLLAMA_TIMEOUT_SECONDS=45
+AI_FALLBACK_ENABLED=true
+~~~
+
+Then run:
+
+~~~bash
+ollama pull qwen3
+ollama serve
+~~~
+
+### Supabase storage option
+
+~~~env
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_STORAGE_BUCKET=creatoros-media
+MEDIA_LOCAL_DIR=media
+MAX_UPLOAD_MB=25
+~~~
+
+If Supabase storage credentials are not supplied, the backend can use its local media fallback during development.
+
+### Meta OAuth and live publishing
+
+Facebook Page OAuth:
+
+~~~env
+META_GRAPH_BASE_URL=https://graph.facebook.com/v26.0
+META_APP_ID=
+META_APP_SECRET=
+META_REDIRECT_URI=http://localhost:8000/api/v1/social-accounts/facebook/callback
+~~~
+
+Instagram Login OAuth:
+
+~~~env
+INSTAGRAM_APP_ID=
+INSTAGRAM_APP_SECRET=
+INSTAGRAM_REDIRECT_URI=http://localhost:8000/api/v1/social-accounts/instagram/callback
+INSTAGRAM_GRAPH_BASE_URL=https://graph.instagram.com/v26.0
+INSTAGRAM_OAUTH_AUTHORIZE_URL=https://www.instagram.com/oauth/authorize
+INSTAGRAM_OAUTH_TOKEN_URL=https://api.instagram.com/oauth/access_token
+INSTAGRAM_SCOPES=instagram_business_basic,instagram_business_content_publish,instagram_business_manage_insights
+~~~
+
+Token encryption and external cron:
+
+~~~env
 SOCIAL_TOKEN_ENCRYPTION_KEY=
 CRON_SECRET=
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=qwen3
-```
+PUBLISH_BATCH_SIZE=100
+~~~
 
-Run migrations:
+SOCIAL_TOKEN_ENCRYPTION_KEY is recommended. If it is omitted, the backend derives a compatible encryption key from JWT_SECRET_KEY.
 
-```bash
+## 3. Run database migrations
+
+~~~bash
 alembic upgrade head
-```
+~~~
 
-Start FastAPI:
+Alembic migrations are the authoritative schema migration history. Do not rebuild the final report database section from an older standalone SQL export.
 
-```bash
+## 4. Start FastAPI
+
+~~~bash
 uvicorn app.main:app --reload
-```
+~~~
 
 Verify:
 
-- API docs: `http://localhost:8000/docs`
-- Health: `http://localhost:8000/health`
-- Database health: `http://localhost:8000/health/db`
+- API docs: http://localhost:8000/docs
+- Health: http://localhost:8000/health
+- Database health: http://localhost:8000/health/db
 
-## 3. Ollama setup
+The /health response also reports whether the exact-time in-process scheduler is running.
 
-```bash
-ollama pull qwen3
-ollama serve
-```
-
-The application can still demonstrate AI workflows with fallback enabled if Ollama is unavailable.
-
-## 4. Frontend setup
+## 5. Frontend setup
 
 Open a second terminal:
 
-```bash
-cd ~/Documents/creatoros-web
-npm install
+~~~bash
+cd creatoros-web
+npm ci
 cp .env.example .env.local
-```
+~~~
 
 Set:
 
-```env
+~~~env
 NEXT_PUBLIC_API_URL=http://localhost:8000
-```
+~~~
 
 Start Next.js:
 
-```bash
+~~~bash
 npm run dev
-```
+~~~
 
-Open:
+Open http://localhost:3000.
 
-`http://localhost:3000`
-
-## 5. Local validation
+## 6. Local validation
 
 Backend:
 
-```bash
-cd ~/Documents/creatoros-api
+~~~bash
+cd creatoros-api
 source .venv/bin/activate
 python -m compileall app
 alembic upgrade head
 pytest -q --cov=app --cov-report=term-missing
-```
+~~~
 
 Frontend:
 
-```bash
-cd ~/Documents/creatoros-web
+~~~bash
+cd creatoros-web
 npm run lint
 npm run build
-```
+~~~
 
-## 6. Recommended local demo configuration
+## 7. Publishing modes
 
-Use:
+Safe simulation:
 
-```env
+~~~env
+SOCIAL_PUBLISH_MODE=simulate
+~~~
+
+Live automatic publishing:
+
+~~~env
+SOCIAL_PUBLISH_MODE=live
+~~~
+
+Live mode requires valid connected Facebook Page or Instagram credentials. Facebook personal profiles remain an assisted manual-share workflow even when live mode is enabled.
+
+## 8. Recommended demonstration configuration
+
+For the least external-service risk:
+
+~~~env
 SOCIAL_PUBLISH_MODE=simulate
 AI_FALLBACK_ENABLED=true
-```
+~~~
 
-This keeps the project reliable for a classroom demonstration without requiring approved Meta publishing credentials or guaranteed Ollama availability.
+If the purpose of the demonstration is to prove real Meta publishing, use live mode only after verifying OAuth credentials and the publishing-readiness endpoint.

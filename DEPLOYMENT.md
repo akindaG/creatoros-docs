@@ -5,6 +5,8 @@ CreatorOS AI V1 uses:
 - Supabase for PostgreSQL and media storage
 - Railway for the FastAPI backend
 - Vercel for the Next.js frontend
+- Gemini for the recommended hosted AI provider
+- Meta and Instagram APIs for live social integration
 
 ## 1. Supabase
 
@@ -14,134 +16,190 @@ Create or use the CreatorOS Supabase project and collect:
 - Project URL
 - Service role key
 
-Create a storage bucket named:
+Create a storage bucket named creatoros-media.
 
-```text
-creatoros-media
-```
-
-Do not commit Supabase secrets to GitHub.
+Never commit Supabase secrets to GitHub.
 
 ## 2. Railway backend
 
-Deploy `akindaG/creatoros-api` from the `main` branch.
+Deploy akindaG/creatoros-api from the main branch.
 
-The repository includes `railway.json`. The start command runs database migrations before FastAPI starts.
+The repository start command runs Alembic migrations before FastAPI starts.
 
-Recommended Railway environment variables:
+Recommended Railway variables:
 
-```env
+~~~env
 APP_ENV=production
 DEBUG=false
+
 DATABASE_URL=<Supabase PostgreSQL connection string>
+
 JWT_SECRET_KEY=<strong random secret>
 FRONTEND_ORIGINS=<Vercel frontend URL>
+FRONTEND_URL=<Vercel frontend URL>
+
+AI_PROVIDER=gemini
+GEMINI_API_KEY=<Gemini API key>
+GEMINI_MODEL=gemini-3.5-flash-lite
+AI_FALLBACK_ENABLED=true
+
 SUPABASE_URL=<Supabase project URL>
 SUPABASE_SERVICE_ROLE_KEY=<Supabase service role key>
 SUPABASE_STORAGE_BUCKET=creatoros-media
+
 SOCIAL_TOKEN_ENCRYPTION_KEY=<strong random secret>
-CRON_SECRET=<strong random secret>
 SOCIAL_PUBLISH_MODE=simulate
-AI_FALLBACK_ENABLED=true
-```
 
-If using a remotely reachable Ollama service, configure:
+META_GRAPH_BASE_URL=https://graph.facebook.com/v26.0
+META_APP_ID=<Meta app ID>
+META_APP_SECRET=<Meta app secret>
+META_REDIRECT_URI=https://YOUR-RAILWAY-DOMAIN/api/v1/social-accounts/facebook/callback
 
-```env
-OLLAMA_BASE_URL=<Ollama service URL>
+INSTAGRAM_APP_ID=<Instagram app ID if separate>
+INSTAGRAM_APP_SECRET=<Instagram app secret if separate>
+INSTAGRAM_REDIRECT_URI=https://YOUR-RAILWAY-DOMAIN/api/v1/social-accounts/instagram/callback
+INSTAGRAM_GRAPH_BASE_URL=https://graph.instagram.com/v26.0
+INSTAGRAM_OAUTH_AUTHORIZE_URL=https://www.instagram.com/oauth/authorize
+INSTAGRAM_OAUTH_TOKEN_URL=https://api.instagram.com/oauth/access_token
+INSTAGRAM_SCOPES=instagram_business_basic,instagram_business_content_publish,instagram_business_manage_insights
+
+CRON_SECRET=<strong random secret>
+PUBLISH_BATCH_SIZE=100
+~~~
+
+If using Ollama instead of Gemini:
+
+~~~env
+AI_PROVIDER=ollama
+OLLAMA_BASE_URL=<reachable Ollama service URL>
 OLLAMA_MODEL=qwen3
-```
-
-For the student MVP, AI fallback mode is recommended when the hosted environment cannot run Ollama reliably.
-
-Verify after deployment:
-
-```text
-https://YOUR-RAILWAY-DOMAIN/health
-https://YOUR-RAILWAY-DOMAIN/health/db
-https://YOUR-RAILWAY-DOMAIN/docs
-```
+OLLAMA_TIMEOUT_SECONDS=45
+AI_FALLBACK_ENABLED=true
+~~~
 
 ## 3. Scheduled publishing
 
-The backend includes both a worker command and a protected cron endpoint.
+The deployed API starts an exact-time in-process scheduler automatically through the FastAPI lifespan.
+
+Its health state is exposed through:
+
+~~~text
+GET /health
+~~~
+
+The backend also supports two operational alternatives.
 
 Worker command:
 
-```bash
+~~~bash
 python -m app.jobs.publish_due
-```
+~~~
 
-Protected API endpoint:
+Protected cron endpoint:
 
-```text
+~~~text
 POST /api/v1/internal/process-due
 X-Cron-Secret: <CRON_SECRET>
-```
+~~~
 
-Configure a Railway scheduled service or another scheduler to process due posts periodically.
+A separate cron service is therefore optional rather than the only scheduling mechanism.
 
-## 4. Vercel frontend
+## 4. Meta OAuth callback setup
 
-Deploy `akindaG/creatoros-web` from the `master` branch.
+Configure the production callback URLs in the Meta application so they exactly match the Railway URLs configured in environment variables.
+
+Facebook callback:
+
+~~~text
+https://YOUR-RAILWAY-DOMAIN/api/v1/social-accounts/facebook/callback
+~~~
+
+Instagram callback:
+
+~~~text
+https://YOUR-RAILWAY-DOMAIN/api/v1/social-accounts/instagram/callback
+~~~
+
+The frontend production URL must also match FRONTEND_URL and be included in FRONTEND_ORIGINS.
+
+## 5. Vercel frontend
+
+Deploy akindaG/creatoros-web from the master branch.
 
 Set:
 
-```env
+~~~env
 NEXT_PUBLIC_API_URL=https://YOUR-RAILWAY-DOMAIN
-```
+~~~
 
-After Vercel provides the production domain, update the Railway backend variable:
+After Vercel provides the production domain, update Railway:
 
-```env
+~~~env
 FRONTEND_ORIGINS=https://YOUR-VERCEL-DOMAIN
-```
+FRONTEND_URL=https://YOUR-VERCEL-DOMAIN
+~~~
 
-Redeploy the backend if needed so the new CORS value is active.
+Redeploy the backend if environment changes require it.
 
-## 5. Production verification
+## 6. Production verification
 
-Verify:
+Verify all of the following with the deployed URLs:
 
 1. Landing page loads.
 2. Registration works.
 3. Login works.
-4. Authenticated dashboard loads.
-5. Social account connect/disconnect works.
-6. Media upload works.
-7. Draft CRUD works.
-8. AI endpoints return output.
-9. Scheduling works.
-10. Calendar loads scheduled posts.
-11. Analytics loads.
-12. Growth recommendations load.
-13. Logout clears the session.
+4. Protected dashboard loads.
+5. /health reports healthy status and scheduler state.
+6. /health/db reports a database connection.
+7. Facebook OAuth starts and returns correctly.
+8. Instagram OAuth starts and returns correctly.
+9. Media upload works.
+10. Draft CRUD works.
+11. Gemini or the selected AI provider returns caption output.
+12. Content analysis returns a score and suggestions.
+13. Single-platform scheduling works.
+14. Multi-platform scheduling works.
+15. Calendar shows grouped simultaneous schedules consistently.
+16. Post Now works in the intended publishing mode.
+17. Multi-platform Post Now reports full, partial, or failed outcomes correctly.
+18. Analytics loads.
+19. Growth recommendations load.
+20. Logout clears the session.
 
-## 6. Meta publishing mode
+## 7. Publishing modes
 
-Use for the project demonstration:
+Safe demonstration mode:
 
-```env
+~~~env
 SOCIAL_PUBLISH_MODE=simulate
-```
+~~~
 
-Only switch to:
+Live publishing mode:
 
-```env
+~~~env
 SOCIAL_PUBLISH_MODE=live
-```
+~~~
 
-when approved Meta credentials and correct Facebook or Instagram account identifiers are available.
+Live automatic publishing applies to Facebook Pages and Instagram Business or Creator accounts.
 
-## 7. Secret management
+Facebook personal-profile posting remains an assisted manual-share workflow. Do not claim that the backend automatically publishes to personal timelines.
 
-Never commit these values:
+## 8. Public Meta compliance pages
+
+The web application includes public privacy, terms, and data-deletion pages. Verify their production URLs before Meta app review or demonstration.
+
+## 9. Secret management
+
+Never commit:
 
 - Database passwords
-- `JWT_SECRET_KEY`
-- `SOCIAL_TOKEN_ENCRYPTION_KEY`
-- `CRON_SECRET`
+- JWT_SECRET_KEY
+- GEMINI_API_KEY
+- SOCIAL_TOKEN_ENCRYPTION_KEY
+- CRON_SECRET
 - Supabase service role key
-- Meta access tokens
+- Meta app secret
+- Instagram app secret
+- Meta or Instagram access tokens
 
-Store them only in Railway, Vercel, Supabase or local ignored environment files.
+Store secrets only in Railway, Vercel, Supabase, or ignored local environment files.

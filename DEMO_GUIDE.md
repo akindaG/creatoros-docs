@@ -1,16 +1,28 @@
 # Final Demo Guide
 
-This guide keeps the CreatorOS AI presentation focused on the approved Version 1.0 scope.
+This guide keeps the CreatorOS AI presentation aligned with the approved Version 1.0 web scope while accurately describing implementation changes made after the original proposal.
 
 ## Suggested presentation sequence
 
 ### 1. Introduce the problem
 
-Creators and small businesses need to manage content, scheduling, analytics and growth decisions across social platforms. CreatorOS AI centralizes those workflows and adds AI-assisted recommendations.
+Creators and small businesses need to manage content, scheduling, publishing, analytics, and growth decisions across social platforms. CreatorOS centralizes these workflows and adds AI-assisted recommendations.
 
-### 2. Show the landing page
+### 2. Explain the implemented architecture briefly
 
-Explain the product as an AI-powered Social Growth Intelligence Platform rather than only a scheduler.
+~~~text
+Next.js frontend on Vercel
+        |
+        v
+FastAPI REST API on Railway
+        |
+        +--> Supabase PostgreSQL
+        +--> Supabase Storage
+        +--> Gemini or Ollama/Qwen 3
+        +--> Facebook and Instagram APIs
+~~~
+
+State clearly that the final AI layer is provider-based. Gemini is suitable for hosted deployment, while Ollama with Qwen 3 remains available for local inference.
 
 ### 3. Register and log in
 
@@ -19,47 +31,85 @@ Demonstrate:
 - Registration
 - Login
 - Protected workspace access
+- Logout if time allows
 
-### 4. Connect a social account
+### 4. Connect a supported social account
 
-Open Social Accounts and connect Instagram or Facebook using demonstration credentials.
+Open Social Accounts.
 
-Explain that V1 supports only Facebook and Instagram.
+Preferred live demonstration:
+
+- Connect a Facebook Page through Meta OAuth
+- Connect an Instagram Business or Creator account through Instagram Login OAuth
+
+Explain that automatic V1 publishing targets are Facebook Pages and Instagram professional accounts.
+
+If discussing personal Facebook profiles, say that CreatorOS uses an assisted-share workflow rather than silent API publishing.
 
 ### 5. Open Content Studio
 
 Demonstrate:
 
-- Image or MP4 upload
+- JPEG, PNG, WebP, or MP4 upload
 - Draft title
 - Caption editing
 - Platform selection
 - Save draft
 - Edit draft
 - Delete draft if needed
+- Connected cross-post target selection
 
 ### 6. Use AI Assistant
 
-Generate a caption from a topic and demonstrate:
+Generate a caption and demonstrate:
 
+- Topic and description input
+- Tone and platform context
 - Caption generation
+- CTA generation
 - Hashtag suggestions
 - Content analysis score
+- Strengths
 - Improvement suggestions
-- Copy or use generated content in Content Studio
+- Transfer into Content Studio
 
-Mention that the AI layer uses Ollama with Qwen 3 and has a fallback mode for demonstration reliability.
+If the examiner asks which model is used, explain that the backend selects Gemini or Ollama/Qwen 3 through the same API contract. AI_FALLBACK_ENABLED can keep the workflow available when the selected provider is temporarily unavailable.
 
-### 7. Schedule the post
+### 7. Demonstrate Post Now
 
-From the saved draft:
+For an automatic target:
 
-- Choose a future date and time
-- Select Facebook or Instagram
-- Schedule the post
-- Open Calendar and confirm the event appears
+- Select Facebook Page, Instagram, or both
+- Click Post Now
+- Explain the publishing-readiness status
 
-### 8. Show analytics
+If SOCIAL_PUBLISH_MODE=simulate, explicitly say the action is simulated and nothing is sent to Meta.
+
+If SOCIAL_PUBLISH_MODE=live, show the successful real publishing result.
+
+### 8. Demonstrate multi-platform scheduling
+
+From a saved draft:
+
+- Select Facebook Page and Instagram
+- Choose one future date and time
+- Schedule both in one action
+- Open Calendar
+- Show that simultaneous platform schedules are grouped consistently
+- Reschedule or cancel the group if useful
+
+Explain that the backend runs an exact-time scheduler that waits for the next stored timestamp and wakes when schedules change.
+
+### 9. Show Facebook personal-profile assisted sharing
+
+Only if useful for the panel:
+
+- Select Facebook Profile
+- Explain that CreatorOS cannot silently auto-publish to the personal timeline through the supported integration
+- Show how CreatorOS prepares the content, opens Facebook, and allows the user to mark the item as shared
+- For scheduled profile content, explain the ready_to_share state
+
+### 10. Show Analytics
 
 Demonstrate:
 
@@ -73,7 +123,7 @@ Demonstrate:
 - Top-performing content
 - CSV export
 
-### 9. Show Growth Insights
+### 11. Show Growth Insights
 
 Demonstrate:
 
@@ -82,33 +132,21 @@ Demonstrate:
 - Posting consistency guidance
 - Engagement improvement suggestions
 
-### 10. Demonstrate publishing
+## V1 scope statement
 
-For the safest final presentation, keep:
+Present these as implemented core V1 capabilities:
 
-```env
-SOCIAL_PUBLISH_MODE=simulate
-```
+- Web authentication and profile management
+- Facebook Page and Instagram professional account integration
+- Content Studio and media
+- AI content assistance
+- Scheduling and calendar
+- Immediate publishing
+- Analytics
+- Posting-time recommendations
+- Growth recommendations
 
-Explain that the backend supports a live Meta publishing mode, but simulation mode avoids dependence on Meta approval during the university demonstration.
-
-## Short architecture explanation
-
-```text
-Next.js frontend
-      |
-      v
-FastAPI REST API
-      |
-      +--> PostgreSQL / Supabase
-      +--> Supabase Storage
-      +--> Ollama / Qwen 3
-      +--> Facebook / Instagram via Meta APIs
-```
-
-## Features to avoid presenting as V1
-
-Do not present these as implemented V1 capabilities:
+Do not present these as approved V1 core requirements:
 
 - TikTok
 - LinkedIn
@@ -116,12 +154,11 @@ Do not present these as implemented V1 capabilities:
 - Competitor intelligence
 - Trend prediction
 - Agency dashboard
-- Mobile application
 - Autonomous agents
 - Enterprise multi-tenancy
 
-They belong to the future roadmap.
+The Expo mobile application is an experimental post-MVP extension. Mention it only as additional work or future expansion unless the panel specifically asks.
 
 ## Final closing statement
 
-CreatorOS AI helps creators and businesses manage content, generate AI-assisted copy, schedule posts, analyze engagement and receive data-driven growth recommendations from one centralized workspace.
+CreatorOS AI helps creators and small businesses manage content, generate AI-assisted social copy, publish or schedule to supported channels, analyze engagement, and receive data-driven growth recommendations from one centralized workspace.

@@ -1,40 +1,54 @@
 # CreatorOS AI Documentation
 
-CreatorOS AI is an AI-powered Social Growth Intelligence Platform for creators and small businesses. Version 1.0 focuses on Facebook and Instagram content management, AI-assisted copy, scheduling, analytics, and growth recommendations.
+CreatorOS AI is an AI-powered Social Growth Intelligence Platform for creators and small businesses. Version 1.0 focuses on Facebook and Instagram content management, AI-assisted copy, scheduling, analytics, publishing, and growth recommendations.
+
+This repository documents the implementation that exists in the current CreatorOS codebase. Earlier proposal, SRS, database, and design submissions remain useful historical artifacts, but the live code, SQLAlchemy models, and Alembic migrations are the source of truth for the final implementation.
 
 ## Project repositories
 
 - Frontend: https://github.com/akindaG/creatoros-web
 - Backend: https://github.com/akindaG/creatoros-api
 - Documentation: https://github.com/akindaG/creatoros-docs
+- Experimental mobile extension: https://github.com/akindaG/creatoros-mobile
 
-## Version 1.0 scope
+## Version 1.0 core scope
 
 CreatorOS AI V1 includes:
 
-- User registration, login, logout, password reset, profile and password management
-- Facebook and Instagram account connections
-- Image and video uploads
-- Draft creation, editing and deletion
-- Content scheduling and calendar management
+- User registration, login, logout, password reset, profile management, and password changes
+- Facebook Page connection through Meta OAuth
+- Instagram Business or Creator account connection through Instagram Login OAuth
+- Encrypted social access credentials at rest
+- Image and MP4 upload
+- Draft creation, editing, filtering, and deletion
+- Post Now publishing
+- One-click Facebook Page and Instagram multi-platform publishing
+- Content scheduling, rescheduling, cancellation, and calendar management
+- One-click multi-platform scheduling with grouped calendar entries
+- Assisted Facebook personal-profile sharing
 - AI caption generation
 - AI hashtag generation
 - AI content analysis
-- Analytics dashboard and CSV export
+- Analytics dashboards and CSV export
 - Best posting-time recommendations
 - Growth recommendations
 - Simulated or live Meta publishing
+- Exact-time scheduled publishing inside the FastAPI process, with worker and protected cron alternatives
 
-The V1 scope intentionally excludes TikTok, LinkedIn, YouTube, competitor analysis, trend prediction, mobile apps, agency management, custom AI training and autonomous agents.
+The approved V1 product scope remains centered on the web application. TikTok, LinkedIn, YouTube, competitor intelligence, trend prediction, agency management, autonomous agents, and enterprise multi-tenancy are future work.
 
-## Technology stack
+The separate Expo mobile application is an experimental post-MVP extension and should not be presented as part of the originally approved V1 scope.
+
+## Actual technology stack
 
 ### Frontend
 
-- Next.js
+- Next.js 16
+- React 19
 - TypeScript
-- React
-- Tailwind CSS
+- Tailwind CSS 4
+
+The current web repository does not depend on Zustand, Recharts, or shadcn/ui. Those technologies appeared in earlier planning but are not part of the implemented web dependency set.
 
 ### Backend
 
@@ -42,70 +56,80 @@ The V1 scope intentionally excludes TikTok, LinkedIn, YouTube, competitor analys
 - Python
 - SQLAlchemy
 - Alembic
+- PostgreSQL
 
 ### Data and storage
 
-- PostgreSQL
-- Supabase
+- Supabase PostgreSQL
 - Supabase Storage
+- Local media fallback for development
 
-### AI
+### AI layer
 
-- Ollama
-- Qwen 3
+CreatorOS uses a provider abstraction:
+
+- Google Gemini for hosted production inference
+- Ollama with Qwen 3 for local inference
+- Deterministic fallback output when AI_FALLBACK_ENABLED=true and the selected provider is unavailable
+
+### Social integration
+
+- Meta OAuth for Facebook Pages
+- Instagram Login OAuth for Instagram Business or Creator accounts
+- Meta Graph API and Instagram Graph API for live publishing
+- Assisted manual sharing for Facebook personal profiles
 
 ### Deployment
 
-- Vercel for the frontend
-- Railway for the backend
-- Supabase for PostgreSQL and storage
+- Vercel for the Next.js frontend
+- Railway for the FastAPI backend
+- Supabase for PostgreSQL and media storage
 
 ## High-level architecture
 
-```text
-User
+~~~text
+Browser
   |
   v
-Next.js frontend
+Next.js 16 + React 19 + TypeScript
+Vercel
   |
-  | REST API + JWT
+  | HTTPS REST + JWT
   v
-FastAPI backend
+FastAPI
+Railway
   |
   +--> PostgreSQL / Supabase
   +--> Supabase Storage
-  +--> Ollama / Qwen 3
-  +--> Meta Graph API for Facebook and Instagram
-```
-
-## Current project state
-
-The V1 codebase is integrated and merged into the primary branches:
-
-- `creatoros-api`: `main`
-- `creatoros-web`: `master`
-- `creatoros-docs`: `main`
-
-Automated validation covers backend compilation, database migrations, pytest, frontend linting, TypeScript validation and the production Next.js build.
+  +--> Gemini OR Ollama / Qwen 3
+  +--> Meta Graph API
+  +--> Instagram Graph API
+~~~
 
 ## Documentation index
 
 - [Architecture](ARCHITECTURE.md)
+- [Data Model](DATA_MODEL.md)
 - [Local Setup](LOCAL_SETUP.md)
 - [Testing](TESTING.md)
 - [Deployment](DEPLOYMENT.md)
 - [Demo Guide](DEMO_GUIDE.md)
+- [Report Alignment](REPORT_ALIGNMENT.md)
 - [Final Project Status](FINAL_STATUS.md)
 
-## Primary demo flow
+## Primary demonstration flow
 
 1. Register and log in.
-2. Connect Instagram or Facebook.
+2. Connect Instagram or a Facebook Page.
 3. Upload media.
 4. Save a content draft.
 5. Generate or improve a caption with AI.
 6. Analyze content quality.
-7. Schedule the post.
-8. View it in the calendar.
+7. Publish immediately to one or both supported automatic channels, or schedule the post.
+8. Confirm scheduled entries in Calendar.
 9. Review analytics and growth recommendations.
-10. Publish in simulation mode or live Meta mode when approved credentials are configured.
+10. Demonstrate Facebook personal-profile assisted sharing separately if required.
+
+## Documentation accuracy rule
+
+When final report content conflicts with an older proposal, SRS, diagram, SQL export, or mockup, describe the difference explicitly. Do not claim a planned library or feature was implemented unless it exists in the current codebase.
