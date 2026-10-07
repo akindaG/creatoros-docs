@@ -18,11 +18,11 @@ FastAPI REST API on Railway
         |
         +--> Supabase PostgreSQL
         +--> Supabase Storage
-        +--> Gemini or Ollama/Qwen 3
+        +--> Google Gemini
         +--> Facebook and Instagram APIs
 ~~~
 
-State clearly that the final AI layer is provider-based. Gemini is suitable for hosted deployment, while Ollama with Qwen 3 remains available for local inference.
+State clearly that the hosted AI layer uses Google Gemini through the FastAPI backend, with deterministic fallback available when enabled.
 
 ### 3. Register and log in
 
@@ -73,7 +73,7 @@ Generate a caption and demonstrate:
 - Improvement suggestions
 - Transfer into Content Studio
 
-If the examiner asks which model is used, explain that the backend selects Gemini or Ollama/Qwen 3 through the same API contract. AI_FALLBACK_ENABLED can keep the workflow available when the selected provider is temporarily unavailable.
+If the examiner asks which AI service is used, explain that the hosted backend uses Google Gemini through the same FastAPI AI contract. AI_FALLBACK_ENABLED can keep the workflow available if Gemini is temporarily unavailable.
 
 ### 7. Demonstrate Post Now
 
