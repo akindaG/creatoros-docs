@@ -5,7 +5,7 @@ CreatorOS AI V1 uses:
 - Supabase for PostgreSQL and media storage
 - Railway for the FastAPI backend
 - Vercel for the Next.js frontend
-- Gemini for the recommended hosted AI provider
+- Google Gemini for hosted AI generation and analysis
 - Meta and Instagram APIs for live social integration
 
 ## 1. Supabase
@@ -67,15 +67,8 @@ CRON_SECRET=<strong random secret>
 PUBLISH_BATCH_SIZE=100
 ~~~
 
-If using Ollama instead of Gemini:
+The production AI configuration should keep AI_PROVIDER=gemini and store GEMINI_API_KEY only in Railway environment variables.
 
-~~~env
-AI_PROVIDER=ollama
-OLLAMA_BASE_URL=<reachable Ollama service URL>
-OLLAMA_MODEL=qwen3
-OLLAMA_TIMEOUT_SECONDS=45
-AI_FALLBACK_ENABLED=true
-~~~
 
 ## 3. Scheduled publishing
 
