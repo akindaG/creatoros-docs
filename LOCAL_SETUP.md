@@ -8,9 +8,8 @@ Install:
 - Node.js and npm
 - Python 3.12
 - PostgreSQL, or access to a Supabase PostgreSQL database
-- Optional: Ollama for local Qwen 3 inference
 - Optional: Meta developer credentials for OAuth and live publishing
-- Optional: Gemini API key for hosted AI inference
+- Optional: Gemini API key for live AI generation
 
 ## 1. Clone the repositories
 
@@ -43,7 +42,7 @@ AI_FALLBACK_ENABLED=true
 SOCIAL_PUBLISH_MODE=simulate
 ~~~
 
-### Hosted Gemini option
+### Google Gemini AI configuration
 
 ~~~env
 AI_PROVIDER=gemini
@@ -52,22 +51,8 @@ GEMINI_MODEL=gemini-3.5-flash-lite
 AI_FALLBACK_ENABLED=true
 ~~~
 
-### Local Ollama and Qwen option
+For local development without a Gemini key, keep AI_FALLBACK_ENABLED=true so AI workflows can return deterministic fallback output.
 
-~~~env
-AI_PROVIDER=ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=qwen3
-OLLAMA_TIMEOUT_SECONDS=45
-AI_FALLBACK_ENABLED=true
-~~~
-
-Then run:
-
-~~~bash
-ollama pull qwen3
-ollama serve
-~~~
 
 ### Supabase storage option
 
