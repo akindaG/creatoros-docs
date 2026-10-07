@@ -188,7 +188,7 @@ The project documentation now reflects:
 - Verify deployed /health/db
 - Verify Facebook OAuth
 - Verify Instagram OAuth
-- Verify the configured AI provider returns real output
+- Verify the configured Gemini AI service returns real output
 - Verify one-platform Post Now
 - Verify multi-platform Post Now
 - Verify single-platform scheduling
