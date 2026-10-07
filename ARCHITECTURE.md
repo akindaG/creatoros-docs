@@ -64,7 +64,7 @@ Main responsibilities:
 - Immediate and multi-platform publishing
 - Facebook personal-profile assisted-share state
 - AI caption, hashtag, and analysis endpoints
-- AI provider selection and fallback behavior
+- Gemini AI service configuration and fallback behavior
 - Analytics aggregation and CSV export
 - Best posting-time calculation
 - Growth recommendation generation
