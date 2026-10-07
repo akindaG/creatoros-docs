@@ -138,7 +138,7 @@ Use the deployed system or local applications and verify:
 
 CI should avoid dependence on a real external AI API where possible.
 
-The provider-selection tests mock Gemini behavior. Fallback tests verify that the application remains usable when the selected provider is unavailable and AI_FALLBACK_ENABLED=true.
+The AI service tests mock Gemini behavior. Fallback tests verify that the application remains usable when the Gemini service is unavailable and AI_FALLBACK_ENABLED=true.
 
 For manual hosted AI testing:
 
@@ -148,14 +148,8 @@ GEMINI_API_KEY=<configured secret>
 AI_FALLBACK_ENABLED=true
 ~~~
 
-For local Qwen testing:
+For local development without external AI availability, enable AI_FALLBACK_ENABLED=true and verify deterministic fallback behavior through the existing tests.
 
-~~~env
-AI_PROVIDER=ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=qwen3
-AI_FALLBACK_ENABLED=true
-~~~
 
 ## Publishing test configuration
 
