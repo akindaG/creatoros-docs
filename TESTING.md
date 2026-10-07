@@ -47,7 +47,7 @@ Coverage areas include:
 - Calendar retrieval
 - Analytics history
 - Analytics CSV export
-- Gemini provider selection
+- Gemini AI service configuration
 - AI fallback behavior
 - Caption generation and content analysis
 - Facebook OAuth
@@ -96,7 +96,7 @@ Record actual results after execution.
 | Production health | /health response |
 | Production DB health | /health/db response |
 | OAuth | Facebook and Instagram connection result |
-| AI | Provider source and generated response |
+| AI | Gemini service response and generated output |
 | Immediate publishing | Simulation or live result |
 | Scheduling | Calendar and due-processing result |
 | Multi-platform scheduling | Same-time grouped entries |
@@ -116,7 +116,7 @@ Use the deployed system or local applications and verify:
 7. Upload a valid image.
 8. Verify an invalid image upload is rejected clearly.
 9. Save a draft.
-10. Generate a caption with the selected AI provider.
+10. Generate a caption with the Gemini AI service.
 11. Generate hashtags.
 12. Analyze the content.
 13. Publish one automatic target.
