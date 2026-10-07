@@ -148,7 +148,7 @@ Verify all of the following with the deployed URLs:
 8. Instagram OAuth starts and returns correctly.
 9. Media upload works.
 10. Draft CRUD works.
-11. Gemini or the selected AI provider returns caption output.
+11. Google Gemini returns caption output.
 12. Content analysis returns a score and suggestions.
 13. Single-platform scheduling works.
 14. Multi-platform scheduling works.
