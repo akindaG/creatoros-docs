@@ -2,7 +2,7 @@
 
 ## Overview
 
-CreatorOS AI uses a separated web frontend and FastAPI backend. The browser communicates with the backend through HTTPS REST requests and JWT authentication. PostgreSQL stores application data. Supabase Storage stores uploaded media. The AI layer selects either Google Gemini or Ollama with Qwen 3. Meta APIs provide Facebook Page and Instagram integration.
+CreatorOS AI uses a separated web frontend and FastAPI backend. The browser communicates with the backend through HTTPS REST requests and JWT authentication. PostgreSQL stores application data. Supabase Storage stores uploaded media. The AI layer uses Google Gemini for hosted caption generation, hashtag generation, and content analysis. Meta APIs provide Facebook Page and Instagram integration.
 
 ~~~text
 User Browser
@@ -19,11 +19,11 @@ Railway
     +----------------------+----------------------+----------------------+
     |                      |                      |                      |
     v                      v                      v                      v
-PostgreSQL            Supabase Storage      AI Provider Layer       Social APIs
+PostgreSQL            Supabase Storage      AI Service              Social APIs
 Supabase                                    |                      |
-                                            +--> Gemini            +--> Meta Graph API
-                                            +--> Ollama/Qwen 3     +--> Instagram Graph API
-                                            +--> Fallback
+                                            +--> Google Gemini     +--> Meta Graph API
+                                            +--> Fallback          +--> Instagram Graph API
+
 ~~~
 
 ## Frontend responsibilities
@@ -122,13 +122,10 @@ Frontend AI Assistant
 FastAPI /api/v1/ai/*
         |
         v
-AI Provider Abstraction
-     /          \
-    v            v
-Gemini       Ollama/Qwen 3
-     \          /
-      v        v
- Structured JSON response
+Google Gemini AI Service
+        |
+        v
+Structured JSON response
         |
         v
 Optional deterministic fallback
@@ -140,9 +137,9 @@ Supported AI features:
 - Hashtag generation
 - Content quality analysis
 
-The selected provider is controlled by AI_PROVIDER.
+The hosted AI service is configured with AI_PROVIDER=gemini.
 
-When AI_FALLBACK_ENABLED=true and the selected provider is unavailable, deterministic fallback output keeps the workflow operational.
+When AI_FALLBACK_ENABLED=true and Gemini is temporarily unavailable, deterministic fallback output keeps the workflow operational.
 
 ## Scheduling architecture
 
@@ -241,7 +238,7 @@ Railway FastAPI
       |
       +--> Supabase PostgreSQL
       +--> Supabase Storage
-      +--> Gemini, or configured Ollama endpoint
+      +--> Google Gemini
       +--> Meta / Instagram APIs
 ~~~
 
