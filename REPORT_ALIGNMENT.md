@@ -10,20 +10,17 @@ The report should not hide implementation changes. Describe them as design decis
 
 ### Original plan
 
-- Ollama
-- Qwen 3
-- Local inference as the primary AI path
+- Local open-source inference as the primary AI path
 
 ### Final implementation
 
-- AI_PROVIDER abstraction
-- Gemini for hosted production
-- Ollama with Qwen 3 for local inference
+- Backend AI service abstraction
+- Google Gemini for hosted production
 - Deterministic fallback when enabled
 
 ### Recommended report wording
 
-CreatorOS evolved from a local-only Qwen design to a provider-abstracted AI layer. This preserved local inference through Ollama while making hosted deployment practical through Gemini.
+CreatorOS evolved from an initial local-inference design to a hosted Gemini-backed AI service. This made cloud deployment practical while keeping the AI workflow isolated behind the FastAPI backend.
 
 ## 2. Frontend dependency plan changed
 
@@ -175,7 +172,7 @@ Unless the codebase changes, keep these outside the approved V1 core story:
 
 ## 12. Recommended final architecture statement
 
-CreatorOS AI is implemented as a Next.js web frontend on Vercel communicating with a FastAPI backend on Railway through a JWT-protected REST API. PostgreSQL and Supabase store application data and media. A provider-abstracted AI layer supports Gemini and Ollama/Qwen 3 with deterministic fallback. Facebook Page and Instagram professional account integrations use OAuth and platform APIs. Scheduling is handled by an exact-time backend scheduler with support for grouped multi-platform publishing.
+CreatorOS AI is implemented as a Next.js web frontend on Vercel communicating with a FastAPI backend on Railway through a JWT-protected REST API. PostgreSQL and Supabase store application data and media. The backend AI service uses Google Gemini with deterministic fallback when enabled. Facebook Page and Instagram professional account integrations use OAuth and platform APIs. Scheduling is handled by an exact-time backend scheduler with support for grouped multi-platform publishing.
 
 ## 13. Recommended conclusion framing
 
