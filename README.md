@@ -66,11 +66,8 @@ The current web repository does not depend on Zustand, Recharts, or shadcn/ui. T
 
 ### AI layer
 
-CreatorOS uses a provider abstraction:
-
-- Google Gemini for hosted production inference
-- Ollama with Qwen 3 for local inference
-- Deterministic fallback output when AI_FALLBACK_ENABLED=true and the selected provider is unavailable
+- Google Gemini for hosted caption generation, hashtag generation, and content analysis
+- Deterministic fallback output when AI_FALLBACK_ENABLED=true and the AI service is temporarily unavailable
 
 ### Social integration
 
@@ -101,7 +98,7 @@ Railway
   |
   +--> PostgreSQL / Supabase
   +--> Supabase Storage
-  +--> Gemini OR Ollama / Qwen 3
+  +--> Google Gemini
   +--> Meta Graph API
   +--> Instagram Graph API
 ~~~
